@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import logo from "../logo.svg";
 import "../App.css";
+import api from "../services/api";
 
 function Header(props) {
   //estado é informação armazenada.
@@ -13,11 +14,26 @@ function Header(props) {
   );
   const [name, setName] = useState(props.options.nome);
   const [site, setSite] = useState(props.options.site);
+  const [task, setTask] = useState([]);
 
   //executar a primeira vez que a página for carregada(Fiap). E cada vez que um estado for alterado(Avanade). Ele executa novamente.
+
+  async function getData() {
+    const res = await api.get("http://127.0.0.1:5000/api/tasks");
+    return await res.data;
+  }
+
   useEffect(() => {
     //Hook executa automaticamente, toda vez que a página é carregada - componenDidMount();
     //Executa automaticamente toda vez que um estado é alterado. - componentDidUpdate();
+
+    //chamando a nossa função getData();
+    async function fetchData() {
+      const response = await getData();
+      setTask(response);
+      return response;
+    }
+    fetchData();
 
     setCompany(company.toUpperCase());
   }, [company]);
@@ -34,6 +50,12 @@ function Header(props) {
       >
         {company} - {name}
       </a>
+
+      <ul>
+        {task.map((item) => (
+          <li key={item._id}>{item.title}</li>
+        ))}
+      </ul>
       <button
         onClick={(e) => setCompany("Avanade")}
       >{`Mudando o nome de: ${company}`}</button>
